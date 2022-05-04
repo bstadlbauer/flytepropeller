@@ -49,6 +49,9 @@ type TaskNodeInfo struct {
 	TaskNodeMetadata *event.TaskNodeMetadata
 }
 
+type GateNodeInfo struct {
+}
+
 type OutputInfo struct {
 	OutputURI storage.DataReference
 }
@@ -59,6 +62,7 @@ type ExecutionInfo struct {
 	BranchNodeInfo   *BranchNodeInfo
 	OutputInfo       *OutputInfo
 	TaskNodeInfo     *TaskNodeInfo
+	GateNodeInfo     *GateNodeInfo
 }
 
 type PhaseInfo struct {

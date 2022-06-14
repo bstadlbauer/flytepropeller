@@ -49,6 +49,7 @@ import (
 	"github.com/flyteorg/flytepropeller/pkg/apis/flyteworkflow/v1alpha1"
 	"github.com/flyteorg/flytepropeller/pkg/controller/config"
 	"github.com/flyteorg/flytepropeller/pkg/controller/nodes"
+	gatemocks "github.com/flyteorg/flytepropeller/pkg/controller/nodes/gate/mocks"
 	recoveryMocks "github.com/flyteorg/flytepropeller/pkg/controller/nodes/recovery/mocks"
 	"github.com/flyteorg/flytepropeller/pkg/controller/nodes/subworkflow/launchplan"
 )
@@ -56,6 +57,7 @@ import (
 var (
 	testScope      = promutils.NewScope("test_wfexec")
 	fakeKubeClient = mocks2.NewFakeKubeClient()
+	signalClient   = &gatemocks.SignalServiceClient{}
 )
 
 const (
@@ -243,8 +245,8 @@ func TestWorkflowExecutor_HandleFlyteWorkflow_Error(t *testing.T) {
 	recoveryClient := &recoveryMocks.RecoveryClient{}
 
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, promutils.NewTestScope())
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, promutils.NewTestScope())
 	assert.NoError(t, err)
 	executor, err := NewExecutor(ctx, store, enqueueWorkflow, eventSink, recorder, "", nodeExec, eventConfig, testClusterID, promutils.NewTestScope())
 	assert.NoError(t, err)
@@ -323,8 +325,8 @@ func TestWorkflowExecutor_HandleFlyteWorkflow(t *testing.T) {
 	recoveryClient := &recoveryMocks.RecoveryClient{}
 
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, promutils.NewTestScope())
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, promutils.NewTestScope())
 	assert.NoError(t, err)
 
 	executor, err := NewExecutor(ctx, store, enqueueWorkflow, eventSink, recorder, "", nodeExec, eventConfig, testClusterID, promutils.NewTestScope())
@@ -386,8 +388,8 @@ func BenchmarkWorkflowExecutor(b *testing.B) {
 	assert.NoError(b, err)
 	recoveryClient := &recoveryMocks.RecoveryClient{}
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, scope)
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, scope)
 	assert.NoError(b, err)
 
 	executor, err := NewExecutor(ctx, store, enqueueWorkflow, eventSink, recorder, "", nodeExec, eventConfig, testClusterID, promutils.NewTestScope())
@@ -496,8 +498,8 @@ func TestWorkflowExecutor_HandleFlyteWorkflow_Failing(t *testing.T) {
 	assert.NoError(t, err)
 	recoveryClient := &recoveryMocks.RecoveryClient{}
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, promutils.NewTestScope())
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, promutils.NewTestScope())
 	assert.NoError(t, err)
 	executor, err := NewExecutor(ctx, store, enqueueWorkflow, eventSink, recorder, "", nodeExec, eventConfig, testClusterID, promutils.NewTestScope())
 	assert.NoError(t, err)
@@ -592,8 +594,8 @@ func TestWorkflowExecutor_HandleFlyteWorkflow_Events(t *testing.T) {
 	assert.NoError(t, err)
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
 	recoveryClient := &recoveryMocks.RecoveryClient{}
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, promutils.NewTestScope())
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, eventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, promutils.NewTestScope())
 	assert.NoError(t, err)
 	executor, err := NewExecutor(ctx, store, enqueueWorkflow, eventSink, recorder, "metadata", nodeExec, eventConfig, testClusterID, promutils.NewTestScope())
 	assert.NoError(t, err)
@@ -650,8 +652,8 @@ func TestWorkflowExecutor_HandleFlyteWorkflow_EventFailure(t *testing.T) {
 	recoveryClient := &recoveryMocks.RecoveryClient{}
 
 	adminClient := launchplan.NewFailFastLaunchPlanExecutor()
-	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, nodeEventSink, adminClient,
-		adminClient, maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, promutils.NewTestScope())
+	nodeExec, err := nodes.NewExecutor(ctx, config.GetConfig().NodeConfig, store, enqueueWorkflow, nodeEventSink, adminClient, adminClient,
+		maxOutputSize, "s3://bucket", fakeKubeClient, catalogClient, recoveryClient, eventConfig, testClusterID, signalClient, promutils.NewTestScope())
 	assert.NoError(t, err)
 
 	t.Run("EventAlreadyInTerminalStateError", func(t *testing.T) {

@@ -144,7 +144,7 @@ type NodeSpec struct {
 	ActiveDeadline *v1.Duration `json:"activeDeadline,omitempty"`
 	// The value set to True means task is OK with getting interrupted
 	// +optional
-	Interruptibe *bool `json:"interruptible,omitempty"`
+	Interruptible *bool `json:"interruptible,omitempty"`
 }
 
 func (in *NodeSpec) GetName() string {
@@ -170,7 +170,7 @@ func (in *NodeSpec) GetActiveDeadline() *time.Duration {
 }
 
 func (in *NodeSpec) IsInterruptible() *bool {
-	return in.Interruptibe
+	return in.Interruptible
 }
 
 func (in *NodeSpec) GetConfig() *typesv1.ConfigMap {

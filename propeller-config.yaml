@@ -22,23 +22,24 @@ propeller:
       type: bucket
       rate: 100
       capacity: 1000
-  # This config assumes using `make start` in flytesnacks repo to startup a DinD k3s container
-  kube-config: "$HOME/.flyte/k3s/k3s.yaml"
+  kube-config: "/Users/bstadlbauer/.kube/config"
+  create-flyteworkflow-crd: true
   publish-k8s-events: true
   workflowStore:
     policy: "ResourceVersionCache"
 tasks:
   task-plugins:
     enabled-plugins:
-      - container
-      - sidecar
+      - dask
+#      - container
+#      - sidecar
       - K8S-ARRAY
     # Uncomment to enable sagemaker plugin
     #      - sagemaker_training
     #      - sagemaker_hyperparameter_tuning
     #      - sagemaker_custom_training
     default-for-task-types:
-      - container: container
+      - dask: dask
       - container_array: K8S-ARRAY
 #      - presto: my-presto
 # Sample plugins config
